@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>资本风云录</title>
+<style>
+:root{--bg:#0f1115;--panel:#171a21;--panel2:#1f232c;--line:#2a2f3a;--txt:#e6e9ef;--sub:#9aa4b2;--gold:#d9a441;--up:#e04b4b;--down:#3fb27f;--blue:#4a7fd6;--purple:#8b6cd6;--red:#c8503f;}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--txt);font-family:"Microsoft YaHei","PingFang SC",sans-serif;font-size:14px;transition:background .8s}
+#app{max-width:920px;margin:0 auto;padding-bottom:74px}
+.topbar{position:sticky;top:0;z-index:20;background:#12141a;border-bottom:1px solid var(--line);padding:10px 12px}
+.clock{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:13px}
+.clock .t{font-size:16px;font-weight:700;color:#fff}
+.era{color:var(--gold);font-weight:700}
+.chip{background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:6px;padding:4px 8px;cursor:pointer;font-size:12px}
+.chip:hover{border-color:var(--gold)}
+.chip.on{background:var(--gold);color:#1a1200;border-color:var(--gold);font-weight:700}
+.assets{display:flex;gap:14px;margin-top:6px;font-size:12px;color:var(--sub);flex-wrap:wrap}
+.assets b{color:#fff}.assets .up{color:var(--up)}.assets .down{color:var(--down)}
+.nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:#0b0d11;border-top:1px solid var(--line);z-index:30;max-width:920px;margin:0 auto}
+.nav button{flex:1;background:none;border:none;color:var(--sub);padding:10px 0;cursor:pointer;font-size:12px}
+.nav button .ic{display:block;width:22px;height:22px;line-height:22px;margin:0 auto 3px;border:1px solid var(--line);border-radius:5px}
+.nav button.on{color:var(--gold)}.nav button.on .ic{border-color:var(--gold);color:var(--gold)}
+.content{padding:12px}
+.subtabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:10px}
+.card h3{font-size:14px;color:var(--gold);margin-bottom:8px}
+.row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px dashed var(--line);gap:8px}
+.row:last-child{border-bottom:none}.row .lbl{color:var(--sub)}
+.btn{background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:6px;padding:5px 10px;cursor:pointer;font-size:12px}
+.btn:hover{border-color:var(--gold)}
+.btn.p{background:var(--gold);color:#1a1200;border-color:var(--gold);font-weight:700}
+.btn.d{color:var(--down);border-color:var(--down)}.btn.r{color:var(--up);border-color:var(--up)}
+.tag{display:inline-block;padding:1px 6px;border-radius:4px;font-size:11px}
+.t-lv1{background:#3a4150;color:#c9d2e0}.t-lv2{background:#2e4a6b;color:#8fc1ff}.t-lv3{background:#5a4413;color:#e9c46a}.t-lv4{background:#6b2e2e;color:#ff9a9a}
+.bar{height:7px;background:#0c0e12;border-radius:4px;overflow:hidden;margin:4px 0}.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),#f0c86a)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.small{font-size:12px;color:var(--sub)}
+.log{max-height:220px;overflow:auto;font-size:12px}.log div{padding:4px 0;border-bottom:1px dashed var(--line);color:var(--sub)}
+.log .up{color:var(--up)}.log .down{color:var(--down)}
+.mask{position:fixed;inset:0;background:#000A;display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
+.mask.on{display:flex}
+.modal{background:var(--panel);border:1px solid var(--gold);border-radius:12px;max-width:560px;width:100%;max-height:86vh;overflow:auto;padding:16px}
+.modal h2{color:var(--gold);font-size:16px;margin-bottom:10px}
+.close{float:right;cursor:pointer;color:var(--sub);font-size:18px}
+.nodes{display:flex;align-items:center;gap:4px;margin-top:6px;flex-wrap:wrap}
+.node{min-width:52px;text-align:center;padding:8px 4px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);color:var(--sub);cursor:pointer;font-size:11px}
+.node.on{border-color:var(--gold);color:var(--gold);background:#d9a44122}
+.node.can{border-color:var(--blue);color:#cfe0ff}
+.conn{width:14px;height:2px;background:var(--line)}.conn.on{background:var(--gold)}
+.org{display:flex;flex-direction:column;gap:10px}
+.orgcard{border:1px solid var(--line);border-radius:10px;padding:10px;background:var(--panel2)}
+.orgcard .nm{font-weight:700;color:#fff}.badge{font-size:11px;color:var(--sub)}
+input[type=range]{width:100%}
+.inp{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:6px;padding:6px;margin:3px 0}
+.up{color:var(--up)}.down{color:var(--down)}
+h2.sec{font-size:18px;margin:4px 0 12px;color:#fff}.head{font-size:11px;color:var(--sub)}
+.line{border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:8px}
+
+/* ===== 本轮视觉优化增强 ===== */
+.topbar{padding:12px 14px 10px;background:linear-gradient(180deg,#14171f,#101218)}
+.clock{gap:7px}
+.clock .t{flex-basis:100%;font-size:20px;letter-spacing:.5px}
+.era{font-size:12px;padding:2px 8px;border-radius:20px;background:rgba(217,164,65,.12);border:1px solid rgba(217,164,65,.4)}
+.clock .chip{min-height:36px;padding:8px 14px;font-size:13px;border-radius:8px;transition:.15s}
+.clock .chip:active{transform:scale(.94)}
+.assets{margin-top:9px;gap:0;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:8px 4px}
+.assets span{flex:1;text-align:center;border-right:1px solid var(--line);padding:0 4px;white-space:nowrap}
+.assets span:last-child{border-right:none}
+.assets b{font-size:14px}
+.content{padding:14px 12px;min-height:calc(100vh - 168px);padding-bottom:96px}
+.subtabs{gap:8px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px;margin-bottom:14px}
+.subtabs .chip{min-height:32px;padding:6px 12px;border-radius:8px}
+.subtabs .chip.on{box-shadow:0 2px 8px rgba(217,164,65,.25)}
+.card{box-shadow:0 2px 10px rgba(0,0,0,.28);transition:.15s}
+.card:hover{border-color:#39414f}
+.kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:11px 8px;text-align:center;position:relative;overflow:hidden}
+.kpi::after{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--gold);opacity:.65}
+.kpi .k-l{font-size:11px;color:var(--sub);margin-bottom:4px}
+.kpi .k-v{font-size:17px;font-weight:800;color:#fff;line-height:1.1}
+.kpi .k-v.up{color:var(--up)}.kpi .k-v.down{color:var(--down)}
+.kpi.k-b::after{background:var(--blue)}
+.kpi.k-r::after{background:var(--up)}.kpi.k-gn::after{background:var(--down)}
+.kpi.k-p::after{background:var(--purple)}
+.nav{padding-bottom:env(safe-area-inset-bottom);box-shadow:0 -2px 12px rgba(0,0,0,.4)}
+.nav button{color:#8b95a6;padding:9px 0 10px}
+.nav button .ic{font-size:13px;font-weight:700;background:#171a21;color:#c3ccda;border-color:#39414f}
+.nav button.on{color:var(--gold);background:linear-gradient(180deg,transparent,rgba(217,164,65,.12))}
+.nav button.on .ic{background:rgba(217,164,65,.16)}
+@media(max-width:360px){.kpi-grid{gap:6px}.kpi .k-v{font-size:15px}}
+</style>
+</head>
+<body><style>
+.authWrap{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:radial-gradient(120% 120% at 50% 0%,#0f1f3d 0%,#08111f 55%,#05080f 100%);font-family:"Microsoft YaHei",system-ui,sans-serif;overflow:auto;padding:20px}
+.authCard{width:380px;max-width:92vw;background:linear-gradient(180deg,#16273f,#101d31);border:1px solid #27406b;border-radius:18px;box-shadow:0 24px 70px rgba(0,0,0,.6);padding:30px 26px;color:#eaf1fb;position:relative}
+.authLogo{font-size:30px;font-weight:800;text-align:center;letter-spacing:2px;background:linear-gradient(90deg,#f5d27a,#e7a93b);-webkit-background-clip:text;background-clip:text;color:transparent}
+.authSub{text-align:center;color:#7f97bd;font-size:13px;margin:6px 0 22px;letter-spacing:1px}
+.authTabs{display:flex;gap:8px;margin-bottom:18px}
+.authTabs button{flex:1;padding:10px 0;border:none;border-radius:10px;background:#1b2e4a;color:#9fb6d8;font-size:15px;cursor:pointer;font-weight:600}
+.authTabs button.on{background:linear-gradient(90deg,#e7a93b,#f5d27a);color:#2a1a00}
+.fld{margin-bottom:13px}
+.fld label{display:block;font-size:12px;color:#8ba3c7;margin-bottom:6px}
+.fld input,.fld select{width:100%;box-sizing:border-box;padding:11px 12px;border-radius:10px;border:1px solid #2d4a78;background:#0c1728;color:#eaf1fb;font-size:15px;outline:none}
+.fld input:focus,.fld select:focus{border-color:#e7a93b}
+.authBtn{width:100%;padding:13px 0;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;margin-top:6px}
+.authBtn.primary{background:linear-gradient(90deg,#e7a93b,#f5d27a);color:#2a1a00}
+.authBtn.ghost{background:transparent;border:1px solid #3a5585;color:#9fb6d8;margin-top:10px}
+.authBtn:active{transform:scale(.98)}
+.pwdRow{position:relative}
+.pwdRow .eye{position:absolute;right:10px;top:9px;color:#8ba3c7;cursor:pointer;font-size:13px;user-select:none}
+.err{color:#ff6b6b;font-size:12px;min-height:16px;margin:-4px 0 8px}
+.rowLine{display:flex;align-items:center;justify-content:space-between;font-size:12px;color:#8ba3c7;margin:4px 0 14px}
+.rowLine label{display:flex;align-items:center;gap:6px;cursor:pointer}
+.pwdHint{display:flex;flex-wrap:wrap;gap:6px;font-size:11px;color:#6f88ac;margin-bottom:10px}
+.pwdHint span{padding:2px 8px;border-radius:20px;background:#16273f;border:1px solid #2d4a78}
+.pwdHint span.ok{color:#4fd07a;border-color:#2c6b45}
+</style><div class="authWrap" id="authScreen"><div class="authCard"><div class="authLogo">资本风云录</div><div class="authSub">CAPITAL CHRONICLES · 账号中心</div><div id="authBody"></div></div></div><div id="app" style="display:none">
+  <div class="topbar">
+    <div class="clock">
+      <span class="t" id="clk"></span>
+      <span class="era" id="era"></span>
+      <button class="chip" id="pauseBtn" onclick="togglePause()">暂停</button>
+      <button class="chip" onclick="manualStep(24)">+1天</button>
+      <button class="chip" onclick="manualStep(168)">+1周</button>
+      <button class="chip" onclick="manualStep(720)">+1月</button>
+      <button class="chip" onclick="manualStep(2160)">+1季</button>
+      <button class="chip" onclick="saveGame();toast('已存档')">存</button>
+      <button class="chip" onclick="resetGame()">重开</button>
+    </div>
+    <div class="assets" id="assetBar"></div>
+  </div>
+  <div class="content" id="content"></div>
+  <div class="nav" id="nav"></div>
+</div>
+<div class="mask" id="mask"><div class="modal" id="modal"></div></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+var LS='capG_v10';
+var SURNAMES=['李','王','张','刘','陈','杨','赵','周','吴','孙','徐','马','朱','胡','林','郭','何','高','罗','郑'];
+var GIVEN=['明','涛','磊','敏','静','霞','强','军','洋','勇','艳','杰','娜','浩','宇','轩','博','琳','倩','辉'];
+var EDU=['本科','硕士','MBA','博士'];
+var PERSON=['激进型','稳健型','创新型','保守型'];
+var DEPTS=[
+ {id:'ib',name:'投资银行部',pos:'IPO承销·并购·再融资',beta:1.3},
+ {id:'tr',name:'自营交易部',pos:'二级市场方向性投资',beta:1.8},
+ {id:'am',name:'资产管理部',pos:'公募/专户/组合投资',beta:1.1},
+ {id:'br',name:'经纪业务部',pos:'代理买卖·渠道佣金',beta:0.9},
+ {id:'rs',name:'经济与产业研究院',pos:'投研·宏观·策略',beta:0.6},
+ {id:'it',name:'信息技术部',pos:'交易系统·数据·量化基础设施',beta:0.5},
+ {id:'rm',name:'风险管理与合规部',pos:'风控·合规·反洗钱',beta:0.3},
+ {id:'lg',name:'合规法务部',pos:'法律·监管对接·合同',beta:0.2}
+];
+var CSUITE=[
+ {id:'chairman',name:'董事长',role:'公司最高决策·玩家本人'},
+ {id:'ceo',name:'总经理 / CEO',role:'统管各业务条线经营'},
+ {id:'coo',name:'副总经理 / COO',role:'统管日常运营与人力'},
+ {id:'cfo',name:'财务总监 / CFO',role:'统管资本、融资与报表'},
+ {id:'board_sec',name:'秘书长 / 董秘',role:'合规、公关与信息披露'}
+];
+var ERAS=[
+ {y:1999,name:'世纪之交·网络泡沫',bg:'#1a1530'},{y:2001,name:'入世漫漫熊途',bg:'#12202a'},
+ {y:2005,name:'股改大牛市',bg:'#2a1a12'},{y:2008,name:'金融海啸与四万亿',bg:'#101826'},
+ {y:2014,name:'改革牛与杠杆牛',bg:'#26141a'},{y:2019,name:'科创板与核心资产',bg:'#12231a'},
+ {y:2021,name:'双减与加息',bg:'#1a1a26'},{y:2024,name:'924反转与AI浪潮',bg:'#0f2430'}
+];
+var EVENTS=[
+ {m:'1999-05',t:'519行情',eff:1,desc:'政策利好点燃网络股行情，大盘急速拉升。'},
+ {m:'1999-07',t:'证券法实施',eff:0.3,desc:'《证券法》正式实施，市场逐步规范。'},
+ {m:'2001-06',t:'国有股减持',eff:-1.2,desc:'国有股减持方案引发市场大幅下跌。'},
+ {m:'2001-12',t:'加入WTO',eff:0.6,desc:'中国正式加入世贸组织，开放加速。'},
+ {m:'2005-06',t:'股权分置改革',eff:1,desc:'股改启动，奠定大牛市制度基础。'},
+ {m:'2007-05',t:'5·30印花税',eff:-1,desc:'上调印花税，垃圾股闪崩，风格切换。'},
+ {m:'2007-10',t:'6124大顶',eff:-1.3,desc:'沪指触及6124历史高点后见顶回落。'},
+ {m:'2008-09',t:'雷曼金融海啸',eff:-1.6,desc:'雷曼倒闭引发全球金融危机，A股暴跌。'},
+ {m:'2008-11',t:'四万亿刺激',eff:1.2,desc:'四万亿投资计划出台，基建与地产链爆发。'},
+ {m:'2009-10',t:'创业板开板',eff:0.7,desc:'创业板正式开板，成长股新时代。'},
+ {m:'2014-11',t:'沪港通开通',eff:0.6,desc:'沪港通落地，外资通道打开，蓝筹走强。'},
+ {m:'2015-06',t:'杠杆牛股灾',eff:-1.8,desc:'场外清理引发千股跌停，杠杆牛崩塌。'},
+ {m:'2016-01',t:'熔断退市',eff:-1,desc:'熔断机制上线即引发恐慌，四日退市。'},
+ {m:'2016-12',t:'房住不炒',eff:-0.4,desc:'中央提出房住不炒，地产逻辑生变。'},
+ {m:'2018-03',t:'贸易摩擦',eff:-1.2,desc:'中美贸易摩擦升级，市场承压。'},
+ {m:'2019-07',t:'科创板注册制',eff:0.8,desc:'科创板并试点注册制，硬科技受追捧。'},
+ {m:'2020-03',t:'疫情大放水',eff:1.1,desc:'全球央行放水，流动性推动核心资产。'},
+ {m:'2021-07',t:'双减反垄断',eff:-1.3,desc:'双减与反垄断落地，平台与教育重挫。'},
+ {m:'2022-03',t:'美联储加息',eff:-0.8,desc:'美联储激进加息，成长股估值杀。'},
+ {m:'2024-09',t:'924政策组合拳',eff:1.6,desc:'政策组合拳点燃924行情，成交天量。'},
+ {m:'2025-02',t:'AI新质生产力',eff:0.9,desc:'AI浪潮延续，新质生产力成为主线。'}
+];
+var SKILL={
+ lead:{name:'领导力',color:'var(--blue)',nodes:[{n:'团队激励',c:1,e:'士气衰减-10%'},{n:'领袖魅力',c:2,e:'高管离职率-20%'},{n:'卓越统御',c:3,e:'全局营收+10%'},{n:'商业传奇',c:4,e:'全局营收+25%'}]},
+ strat:{name:'战略',color:'var(--gold)',nodes:[{n:'行业分析',c:1,e:'项目成功率+5%'},{n:'战略洞察',c:2,e:'估值折扣10%'},{n:'远见卓识',c:3,e:'预知时代剧情'},{n:'商业先知',c:4,e:'投资收益+30%'}]},
+ risk:{name:'风控',color:'var(--red)',nodes:[{n:'谨慎稳健',c:1,e:'风险敞口-10%'},{n:'风控体系',c:2,e:'合规罚款-30%'},{n:'对冲策略',c:3,e:'熊市回撤-20%'},{n:'金融堡垒',c:4,e:'免疫黑天鹅'}]},
+ net:{name:'人脉',color:'var(--purple)',nodes:[{n:'社交达人',c:1,e:'顶级人才爆率+10%'},{n:'人脉网络',c:2,e:'贷款利率-10%'},{n:'资本关系',c:3,e:'IPO通过率+20%'},{n:'资本之王',c:4,e:'解锁恶意收购'}]}
+};
+var NAVS=[['dsk','台','工作台'],['biz','业','业务'],['mkt','市','市场'],['cmp','竞','竞争'],['cap','资','资本'],['fin','财','财务'],['life','生','生活'],['per','人','人物']];
+var SUBTABS={
+ dsk:[['ov','总览'],['report','部门月报'],['mile','里程碑'],['guide','新手攻略']],
+ biz:[['eng','部门引擎'],['talent','人才梯队'],['tilt','战略倾斜'],['tree','部门技能树']],
+ mkt:[['board','大盘盘面'],['sector','板块轮动'],['macro','宏观指标'],['watch','自选/止盈止损']],
+ cmp:[['rank','实时排行'],['intel','AI情报'],['ally','战略联盟'],['research','行业研报']],
+ cap:[['equity','股票市值'],['debt','债权融资'],['sub','子公司版图'],['ipo','IPO增发']],
+ fin:[['pl','利润表'],['bs','资产负债'],['ratio','财务指标']],
+ life:[['state','状态行动'],['asset','置业收藏'],['sched','日程自定义']],
+ per:[['profile','主角档案'],['org','组织架构图'],['csuite','高管层'],['skill','管理层技能树'],['talent_mkt','实时人才市场'],['emp','员工管理']]
+};
+var curTab='dsk',curSub={};
+function rnd(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
+function pick(a){return a[Math.floor(Math.random()*a.length)];}
+function person(lv){
+ lv=lv||pick([1,1,1,2,2,3,4]);
+ var range={1:[24,32],2:[30,42],3:[40,55],4:[48,66]}[lv];
+ var ability={1:rnd(35,55),2:rnd(55,72),3:rnd(70,85),4:rnd(84,98)}[lv];
+ var sal=4+lv*8+rnd(0,60);
+ return {id:'p'+Math.random().toString(36).slice(2,8),name:pick(SURNAMES)+pick(GIVEN),age:rnd(range[0],range[1]),edu:pick(EDU),ability:ability,personality:pick(PERSON),salary:sal,loyalty:rnd(55,90),lv:lv,specialty:pick(DEPTS).name,status:'待业'};
+}
+function newGame(opt){ opt=opt||{}; var diff=opt.diff||'标准'; var mult={'地狱':0.3,'标准':1,'简单':2}[diff]||1; var bm=opt.money!=null?opt.money:30000000; var yr=opt.year||1999; var ag=opt.age||28; var g={year:yr,month:1,day:1,hour:8,paused:false,money:Math.round(bm*mult),asset:opt.asset!=null?opt.asset:600000000,index:1500,bull:1,age:ag,year0:yr,ageBase:ag,diff:diff,diffName:opt.diffName||'',skillPts:3,mood:80,health:90,net:40,lead:0,strat:0,risk:0,netlv:0,depts:{},csuite:{},staff:[],talent:[],watch:[],tilt:{},subCo:['财富管理子公司'],allies:[],logs:[],doneEvents:{},milestones:{},sched:{work:50,social:20,study:15,rest:15}}; DEPTS.forEach(function(d){g.depts[d.id]={lv:1,hc:20,morale:75,head:person(3),deputy:person(2),rev:12000000,skill:{eff:0,scale:0,pro:0}};}); g.csuite={ceo:person(4),coo:person(4),cfo:person(4),board_sec:person(3)}; for(var i=0;i<14;i++)g.talent.push(person()); g.logs.push('剧本《'+(opt.diffName||'标准开局')+'》：'+yr+' 年，可用资金 '+fmt(g.money)+'，难度 '+diff+'。'); return g;}
+function fmt(n){var a=Math.abs(n),s=n<0?'-':'';if(a>=1e12)return s+(a/1e12).toFixed(2)+'万亿';if(a>=1e8)return s+(a/1e8).toFixed(2)+'亿';if(a>=1e4)return s+(a/1e4).toFixed(1)+'万';return s+Math.round(a);}
+function clockStr(){var p=function(x){return x<10?'0'+x:''+x;};return S.year+'年'+p(S.month)+'月'+p(S.day)+'日 '+p(S.hour)+':00';}
+function eraOf(y){var e=ERAS[0];ERAS.forEach(function(x){if(y>=x.y)e=x;});return e;}
+function totalEff(){var m=1+(S.lead*0.04)+(S.strat*0.03)+(S.netlv*0.02);DEPTS.forEach(function(d){var dp=S.depts[d.id];m*=1+dp.skill.eff*0.03+dp.skill.pro*0.02;});m*=1+S.allies.length*0.02;return m;}
+function metaBeta(id){return DEPTS.filter(function(x){return x.id===id;})[0].beta;}
+function revOf(d){var dp=S.depts[d.id];var hf=dp.head?(0.6+dp.head.ability/125):1;var tilt=1+(((S.tilt[d.id]==null?50:S.tilt[d.id]))-50)/250;return dp.rev*(dp.morale/75)*hf*totalEff()*tilt*(1+dp.lv*0.06)*(1+S.bull*0.12*metaBeta(d.id));}
+function maint(){var m=0;DEPTS.forEach(function(d){m+=(S.depts[d.id].hc*1.6)+((S.depts[d.id].head?S.depts[d.id].head.salary:0)*1.2);});Object.keys(S.csuite).forEach(function(k){m+=S.csuite[k].salary*2;});return Math.round(m*1e6/12);}
+function daysInMonth(){var dm=[31,28,31,30,31,30,31,31,30,31,30,31];var m=S.month;if(m===2&&((S.year%4===0&&S.year%100!==0)||S.year%400===0))return 29;return dm[m-1];}
+function log(t){S.logs.unshift(t);if(S.logs.length>80)S.logs.pop();}
+function settleMonth(){
+ var total=0;DEPTS.forEach(function(d){total+=revOf(d);});S.money+=total-maint();
+ var key=S.year+'-'+(S.month<10?'0'+S.month:''+S.month);var ev=null;
+ EVENTS.forEach(function(e){if(e.m===key&&!S.doneEvents[key]){ev=e;S.doneEvents[key]=1;}});
+ if(ev){S.index=Math.round(S.index*(1+ev.eff*0.18));S.asset=Math.round(S.asset*(1+ev.eff*0.08));S.bull=Math.max(-1,Math.min(1,S.bull+ev.eff*0.4));log((ev.eff>0?'<span class=up>利好</span> ':'<span class=down>利空</span> ')+ev.t+'：'+ev.desc);openModal('<h2>时代剧情 · '+ev.t+'</h2><p class=small>'+key+'</p><p style="margin:10px 0">'+ev.desc+'</p><p>大盘 '+ (ev.eff>0?'<span class=up>+':'<span class=down>')+(ev.eff*18).toFixed(0)+'%</span></p><button class="btn p" onclick="closeModal()">知道了</button>');}
+ var drift=(Math.random()-0.5)*0.06;S.index=Math.max(600,Math.round(S.index*(1+drift)));
+ DEPTS.forEach(function(d){var dp=S.depts[d.id];dp.morale=Math.max(30,Math.min(98,dp.morale+rnd(-3,4)));if(dp.head)dp.head.loyalty=Math.max(10,dp.head.loyalty+rnd(-2,2));});
+ S.talent.splice(0,2);for(var i=0;i<2;i++)S.talent.push(person());
+ S.age=S.ageBase+(S.year-S.year0);S.skillPts+=1;checkMilestone();CMP_CACHE=null;if(document.getElementById("content"))renderTab();
+}
+function checkMilestone(){if(S.asset>1e10&&!S.milestones.b100){S.milestones.b100=1;S.skillPts+=3;log('<span class=up>里程碑</span> 资产破百亿！技能点+3');}if(S.asset>1e11&&!S.milestones.b1000){S.milestones.b1000=1;S.skillPts+=5;log('<span class=up>里程碑</span> 资产破千亿！技能点+5');}}
+function stepHour(){S.hour++;if(S.hour>=24){S.hour=0;S.day++;}if(S.day>daysInMonth()){S.day=1;settleMonth();S.month++;if(S.month>12){S.month-=12;S.year++;}}}
+function tick(){if(S.paused)return;stepHour();renderTop();if(S.hour%4===0)patchLive();}
+function manualStep(h){for(var i=0;i<h;i++)stepHour();renderTop();renderTab();}
+var _top={clk:'',era:'',bg:'',paused:null,ab:0};
+function renderTop(){
+ var cs=clockStr();if(_top.clk!==cs){_top.clk=cs;document.getElementById('clk').textContent=cs;}
+ var er=eraOf(S.year),et='时代：'+er.name;if(_top.era!==et){_top.era=et;document.getElementById('era').textContent=et;}
+ if(_top.bg!==er.bg){_top.bg=er.bg;document.body.style.background=er.bg;}
+ if(_top.paused!==S.paused){_top.paused=S.paused;var pb=document.getElementById('pauseBtn');pb.textContent=S.paused?'继续':'暂停';pb.className='chip'+(S.paused?' on':'');}
+ if(!_top.ab){document.getElementById('assetBar').innerHTML='<span>现金 <b id="ab-money"></b></span><span>总资产 <b id="ab-asset"></b></span><span>沪指 <b id="ab-index"></b></span>';_top.ab=1;}
+ var m=document.getElementById('ab-money');if(m){var ms=fmt(S.money);if(m.textContent!==ms)m.textContent=ms;}
+ var a=document.getElementById('ab-asset');if(a){var as=fmt(S.asset);if(a.textContent!==as)a.textContent=as;}
+ var x=document.getElementById('ab-index');if(x){var xs=''+S.index;if(x.textContent!==xs)x.textContent=xs;var xc=S.index>1500?'up':'down';if(x.className!==xc)x.className=xc;}
+}
+function patchLive(){
+ var rev=0;DEPTS.forEach(function(d){rev+=revOf(d);});
+ function set(id,v,cls){var e=document.getElementById(id);if(!e)return;if(cls!=null&&e.className!==cls)e.className=cls;if(e.textContent!==v)e.textContent=v;}
+ set('kpi-asset',fmt(S.asset));
+ set('kpi-money',fmt(S.money));
+ set('kpi-rev',fmt(rev));
+ set('kpi-index',''+S.index,'k-v '+(S.index>1500?'up':'down'));
+ set('kpi-hc',''+DEPTS.reduce(function(acc,d){return acc+S.depts[d.id].hc;},0));
+ set('kpi-skill',''+S.skillPts,'k-v up');
+}
+function renderIfVisible(){renderTab();}
+function renderNav(){document.getElementById('nav').innerHTML=NAVS.map(function(n){return '<button class="'+(curTab===n[0]?'on':'')+'" onclick="go(\''+n[0]+'\')"><span class="ic">'+n[1]+'</span>'+n[2]+'</button>';}).join('');}
+function go(t){curTab=t;if(!curSub[t])curSub[t]=SUBTABS[t][0][0];renderNav();renderTab();}
+function goSub(s){curSub[curTab]=s;renderTab();}
+function renderTab(){var sub=curSub[curTab];var subs=SUBTABS[curTab].map(function(s){return '<button class="chip'+(curSub[curTab]===s[0]?' on':'')+'" onclick="goSub(\''+s[0]+'\')">'+s[1]+'</button>';}).join('');document.getElementById('content').innerHTML='<div class="subtabs">'+subs+'</div>'+subView(curTab,sub);}
+function subView(tab,sub){var fn=VIEWS[tab+'.'+sub];return fn?fn():'<div class=card>建设中</div>';}
+function row(l,v,btn){return '<div class="row"><span class="lbl">'+l+'</span><span style="text-align:right">'+v+(btn?' '+btn:'')+'</span></div>';}
+function bullTxt(){return S.bull>0.3?'<span class=up>牛市</span>':S.bull<-0.3?'<span class=down>熊市</span>':'震荡';}
+function personCard(p){return row('姓名/年龄',p.name+' / '+p.age+'岁')+row('学历',p.edu)+row('能力',p.ability)+row('性格',p.personality)+row('年薪',p.salary+'万')+row('忠诚度',p.loyalty+'%');}
+var CMP_CACHE=null,CMP_KEY='';
+function competitors(){var key=S.year+'-'+S.month;if(CMP_CACHE&&CMP_KEY===key)return CMP_CACHE;var names=['中信资本','华泰控股','国泰君安','招商证券','海通集团','广发金控','中金公司','申万宏源','东方证券','光大资本'];CMP_CACHE=names.map(function(n,i){return {nm:n,asset:6e9+i*3e9+rnd(0,5e9),up:(Math.random()-0.5)*0.4,lev:rnd(40,80),strat:pick(['趋势','价值','量化','并购']),head:person(3)};});CMP_KEY=key;return CMP_CACHE;}
+function openModal(h){document.getElementById('modal').innerHTML='<span class="close" onclick="closeModal()">×</span>'+h;document.getElementById('mask').className='mask on';}
+function closeModal(){document.getElementById('mask').className='mask';}
+function val(id){var e=document.getElementById(id);return e?e.value:'';}
+function toast(m){var t=document.createElement('div');t.textContent=m;t.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#d9a441;color:#1a1200;padding:8px 16px;border-radius:6px;z-index:99;font-size:13px';document.body.appendChild(t);setTimeout(function(){t.remove();},1500);}
+function renderKPI(){var rev=0;DEPTS.forEach(function(d){rev+=revOf(d);});var hc=DEPTS.reduce(function(a,d){return a+S.depts[d.id].hc;},0);return '<div class="kpi-grid"><div class="kpi k-g"><div class="k-l">公司净值</div><div class="k-v" id="kpi-asset">'+fmt(S.asset)+'</div></div><div class="kpi k-b"><div class="k-l">现金储备</div><div class="k-v" id="kpi-money">'+fmt(S.money)+'</div></div><div class="kpi k-gn"><div class="k-l">月营收</div><div class="k-v" id="kpi-rev">'+fmt(rev)+'</div></div><div class="kpi '+(S.index>1500?'k-r':'k-gn')+'"><div class="k-l">沪指</div><div class="k-v '+(S.index>1500?'up':'down')+'" id="kpi-index">'+S.index+'</div></div><div class="kpi k-p"><div class="k-l">员工总数</div><div class="k-v" id="kpi-hc">'+hc+'</div></div><div class="kpi k-g"><div class="k-l">技能点</div><div class="k-v up" id="kpi-skill">'+S.skillPts+'</div></div></div>';}
+var VIEWS={};
+VIEWS['dsk.ov']=function(){return renderKPI()+'<h2 class=sec>工作台总览</h2><div class="card"><h3>经营快讯</h3><div class="log">'+(S.logs.length?S.logs.map(function(l){return '<div>'+l+'</div>';}).join(''):'<div>开局于 '+S.year+' 年，从 '+fmt(S.money)+' 现金白手起家。</div>')+'</div></div><div class="grid"><div class="card"><h3>核心指标</h3>'+row('公司净值',fmt(S.asset))+row('现金储备',fmt(S.money))+row('员工总数',DEPTS.reduce(function(a,d){return a+S.depts[d.id].hc;},0))+row('当前牛熊',bullTxt())+'</div><div class="card"><h3>部门营收榜</h3>'+DEPTS.map(function(d){return row(d.name,fmt(revOf(d)),'<button class=btn onclick="openDept(\''+d.id+'\')">详情</button>');}).join('')+'</div></div><div class="card"><h3>时代图鉴·已亲历</h3><div class="small">'+(EVENTS.filter(function(e){return S.doneEvents[e.m];}).map(function(e){return e.m+' '+e.t;}).join(' ｜ ')||'尚未亲历重大事件。')+'</div></div>';};
+VIEWS['dsk.report']=function(){return '<h2 class=sec>部门月报</h2>'+DEPTS.map(function(d){var dp=S.depts[d.id];var tone=dp.head.personality==='激进型'?'（乐观）':dp.head.personality==='保守型'?'（谨慎）':'';return '<div class="card"><h3>'+d.name+' · '+dp.head.name+' 呈报</h3><p class=small>老板：'+tone+' 本月营收约 '+fmt(revOf(d))+'，士气 '+dp.morale+'%，编制 '+dp.hc+'，负责人能力 '+dp.head.ability+'，忠诚 '+dp.head.loyalty+'%。'+(dp.morale<50?'士气偏低，建议加薪。':'运行平稳。')+'</p><button class="btn" onclick="openDept(\''+d.id+'\')">进入部门</button> <button class="btn" onclick="bonus(\''+d.id+'\')">发奖金</button></div>';}).join('');};
+VIEWS['dsk.mile']=function(){var ms=[['b100','资产破百亿'],['b1000','资产破千亿'],['ipo','完成IPO上市']];return '<h2 class=sec>里程碑</h2><div class="card">'+ms.map(function(m){return row(m[1],S.milestones[m[0]]?'<span class=up>已达成</span>':'未达成');}).join('')+'</div>';};VIEWS['dsk.guide']=function(){var g=[];g.push('<h2 class=sec>新手开局攻略</h2>');g.push('<div class=card><h3>一句话目标</h3><p class=small>从初创资金起步，靠各部门营收+二级市场投资滚大「公司净值」，资产破百亿解锁里程碑，最终建成金融帝国。顶栏实时看：现金 / 总资产 / 沪指。</p></div>');g.push('<div class=card><h3>怎么赚钱</h3><div class=small>1. 时间引擎默认每 1 秒 = 游戏 1 小时，跨月自动结算各部门营收与市场波动；嫌慢可点顶部 +1天/+1周/+1月/+1季 手动跳转，或点「暂停」冻结。<br>2. 部门营收 = 部门等级×编制×士气×负责人能力×牛熊×战略倾斜。在「业务」里拖动「战略倾斜」滑块把资源压向高 beta 部门(自营/投行)放大牛市收益，熊市压向风控/研究保值。<br>3. 「市场」里给自营部方向性仓位，配合自选股止盈止损自动平仓；牛市重仓、熊市降仓。</p></div>');g.push('<div class=card><h3>人才与组织</h3><div class=small>「人物」页含组织架构图(C-Suite 高管→8 大部门总监与副手)与人才市场。负责人能力越高本部门越赚钱：可升职、涨/降薪、送进修、换帅，副手可随时接替。招聘付 30% 猎头费，成功率受人脉与薪酬竞争力影响。</p></div>');g.push('<div class=card><h3>技能树</h3><div class=small>管理层领导力/战略/风控/人脉四线，点亮上级解锁下级：领导力全局增益、战略提项目成功率、风控降回撤与罚款、人脉降贷款利率并解锁并购。每个部门还有效率/规模/专业三线，受部门等级门槛限制。技能点靠经营月份与里程碑积累。</p></div>');g.push('<div class=card><h3>时代与事件</h3><div class=small>从开局年起，到点的真实历史节点(519行情、6124大顶、金融海啸、杠杆牛等)会弹剧情并真实冲击大盘，提前布仓可穿越牛熊。到「工作台·时代图鉴」查看亲历事件。</p></div>');g.push('<div class=card><h3>开局三步走</h3><div class=small>① 开局先存档；② 熊市把战略倾斜给风控/研究、降自营仓位求稳，牛市重仓自营/投行；③ 每月检查士气，士气低于 60 及时发奖金或换帅；④ 资产破百亿前优先扩编制、升级部门。</p></div>');g.push('<div class=card><h3>自定义剧本</h3><p class=small>点顶部「重开」可重新选择开局剧本：白手起家(1999/50万/地狱)、标准开局、股改弄潮(2005)、豪门继承(2008/简单)，或「自定义」自由设定起始年份、年龄、初始资金、总资产与难度。</p></div>');return g.join('');};
+VIEWS['biz.eng']=function(){return '<h2 class=sec>部门引擎</h2>'+DEPTS.map(function(d){var dp=S.depts[d.id];return '<div class="card"><h3>'+d.name+' <span class=badge>Lv.'+dp.lv+' · '+d.pos+'</span></h3>'+row('月营收',fmt(revOf(d)))+row('士气',dp.morale+'%','<div class="bar" style="width:120px"><i style="width:'+dp.morale+'%"></i></div>')+row('编制',dp.hc+' 人')+row('负责人',dp.head.name+'（能力'+dp.head.ability+'）','<button class=btn onclick="openDept(\''+d.id+'\')">管理</button>')+'<div style="margin-top:8px"><button class="btn" onclick="upgradeDept(\''+d.id+'\')">升级(¥500万)</button> <button class="btn" onclick="hireDept(\''+d.id+'\')">增员(¥100万)</button> <button class="btn d" onclick="fireDept(\''+d.id+'\')">裁员</button> <button class="btn" onclick="bonus(\''+d.id+'\')">发奖金</button></div></div>';}).join('');};
+VIEWS['biz.talent']=function(){return '<h2 class=sec>人才梯队</h2><div class="card"><h3>负责人(总监)一览</h3>'+DEPTS.map(function(d){var dp=S.depts[d.id];return row(d.name,dp.head.name+' · 能力'+dp.head.ability+' · 忠诚'+dp.head.loyalty+'%','<button class=btn onclick="openDept(\''+d.id+'\')">档案</button>');}).join('')+'</div><div class="card"><h3>副手(副总监)梯队</h3>'+DEPTS.map(function(d){return row(d.name,S.depts[d.id].deputy.name+' · 能力'+S.depts[d.id].deputy.ability);}).join('')+'</div>';};
+VIEWS['biz.tilt']=function(){return '<h2 class=sec>战略倾斜</h2><div class="card"><p class=small>拖动滑块分配各部门资源权重(默认50)，影响该部门营收。</p>'+DEPTS.map(function(d){var v=S.tilt[d.id]==null?50:S.tilt[d.id];return '<div style="margin:8px 0"><span class=lbl>'+d.name+' <b>'+v+'</b></span><input type="range" min="0" max="100" value="'+v+'" oninput="setTilt(\''+d.id+'\',this.value)"></div>';}).join('')+'</div>';};
+VIEWS['biz.tree']=function(){var html='<h2 class=sec>部门技能树</h2>';DEPTS.forEach(function(d){var dp=S.depts[d.id];html+='<div class="card"><h3>'+d.name+'</h3>';[['eff','效率线'],['scale','规模线'],['pro','专业线']].forEach(function(l){html+='<div class="line"><span class=head">'+l[1]+'</span><div class="nodes">';['标准化','团队化','事业部','垄断级'].forEach(function(nm,i){var on=dp.skill[l[0]]>i;html+='<div class="node'+(on?' on':'')+'" onclick="upDeptSkill(\''+d.id+'\',\''+l[0]+'\','+i+')">'+nm+'</div>';if(i<3)html+='<div class="conn'+(on?' on':'')+'"></div>';});html+='</div></div>';});html+='</div>';});return html;};
+VIEWS['mkt.board']=function(){var trend=bullTxt();return '<h2 class=sec>大盘盘面</h2><div class="card">'+row('上证指数',S.index+' 点')+row('市场情绪',trend)+row('牛熊系数',S.bull.toFixed(2))+'<div class="bar"><i style="width:'+((S.bull+1)/2*100)+'%"></i></div></div><div class="card"><h3>行情速览</h3><div class=small>当前处于「'+eraOf(S.year).name+'」，指数 '+S.index+'。可前往「自选/止盈止损」设定关注标的与自动平仓线。</div></div>';};
+VIEWS['mkt.sector']=function(){var secs=['金融','地产','科技','消费','医药','新能源'];return '<h2 class=sec>板块轮动</h2><div class="card">'+secs.map(function(s,i){var heat=Math.max(5,Math.min(99,50+S.bull*30+i*4+rnd(-10,10)));return row(s,'热度 '+heat+'%','<div class="bar" style="width:100px"><i style="width:'+heat+'%"></i></div>');}).join('')+'</div>';};
+VIEWS['mkt.macro']=function(){return '<h2 class=sec>宏观指标</h2><div class="card">'+row('GDP增速',S.bull>0?'6.5%':'5.2%')+row('CPI',(1+S.bull*2).toFixed(1)+'%')+row('PMI',Math.round(49+S.bull*4))+row('10年国债',(2.6-S.bull*0.3).toFixed(2)+'%')+row('政策取向',S.bull>0?'宽松':'收紧')+'</div>';};
+VIEWS['mkt.watch']=function(){return '<h2 class=sec>自选 / 止盈止损</h2><div class="card"><p class=small>为持仓/自选标的设定止盈止损线。</p>'+(S.watch.length?S.watch.map(function(w,i){return row(w.nm+' 现值'+w.cur,'止盈'+w.tp+'% 止损'+w.sl+'%','<button class="btn d" onclick="delWatch('+i+')">删</button>');}).join(''):'<div class=small>暂无自选。</div>')+'<div style="margin-top:8px"><input class=inp id="wnm" placeholder="标的名称"><input class=inp id="wtp" placeholder="止盈% 如30"><input class=inp id="wsl" placeholder="止损% 如-15"><button class="btn p" onclick="addWatch()">加入自选</button></div></div>';};
+VIEWS['cmp.rank']=function(){return '<h2 class=sec>实时排行</h2><div class="card">'+competitors().map(function(c,i){return '<div class="row"><span>'+c.nm+'</span><span>'+fmt(c.asset)+' <button class=btn onclick="openCmp('+i+')">透视</button></span></div>';}).join('')+'</div>';};
+VIEWS['cmp.intel']=function(){return '<h2 class=sec>AI情报</h2><div class="card"><div class="log">'+competitors().slice(0,5).map(function(c){return '<div>'+c.nm+'：负债率 '+c.lev+'%，策略 '+c.strat+'，估值 '+fmt(c.asset*1.3)+'。</div>';}).join('')+'</div></div>';};
+VIEWS['cmp.ally']=function(){return '<h2 class=sec>战略联盟</h2><div class="card">'+(S.allies.length?S.allies.map(function(a,i){return row(a,'效率+2%','<button class="btn d" onclick="breakAlly('+i+')">解除</button>');}).join(''):'<div class=small>暂无联盟。</div>')+'<div style="margin-top:8px"><button class="btn p" onclick="makeAlly()">缔结联盟(¥2000万)</button></div><p class=small>每个联盟全局效率+2%。</p></div>';};
+VIEWS['cmp.research']=function(){return '<h2 class=sec>行业研报</h2><div class="card"><p class=small>花费现金购买深度研报，透视对手真实底牌。</p><button class="btn p" onclick="buyResearch()">购买全市场深度研报(¥800万)</button><div class="log" style="margin-top:8px" id="rsout">未购买。</div></div>';};
+VIEWS['cap.equity']=function(){var rev=0;DEPTS.forEach(function(d){rev+=revOf(d);});return '<h2 class=sec>股票市值</h2><div class="card">'+row('公司估值',fmt(S.asset*1.3))+row('持股市值',fmt(S.asset))+row('PE',((S.asset*1.3)/Math.max(1,rev*12)).toFixed(1))+'<p class=small>市值管理：媒体公关、分析师会议、增持均可拉升股价。</p><button class="btn" onclick="mktManage()">公关拉抬(¥500万)</button></div>';};
+VIEWS['cap.debt']=function(){return '<h2 class=sec>债权融资</h2><div class="card">'+row('可融资额度',fmt(S.asset*0.4))+row('当前利率','LPR '+(4.2-S.netlv*0.1).toFixed(1)+'%')+'<div style="margin-top:8px"><button class="btn p" onclick="borrow(1)">融资1亿</button> <button class="btn" onclick="borrow(10)">融资10亿</button> <button class="btn d" onclick="repay()">还款1亿</button></div><p class=small>利率受人脉技能影响可下浮。</p></div>';};
+VIEWS['cap.sub']=function(){return '<h2 class=sec>子公司版图</h2><div class="card"><h3>已设子公司</h3>'+S.subCo.map(function(s){return row(s,'并表','<button class=btn onclick="openSub(\''+s+'\')">详情</button>');}).join('')+'<div style="margin-top:8px"><button class="btn p" onclick="newSub()">新设子公司(需资产达百亿)</button></div></div>';};
+VIEWS['cap.ipo']=function(){var html='<h2 class=sec>IPO / 增发</h2><div class="card">';if(S.milestones.ipo)html+='<p class=small>公司已完成IPO上市。</p>';else html+='<p class=small>资产达 300 亿可申请挂牌。</p>';html+='<h3>增发参数自定义</h3><input class=inp id="ipoPrice" value="28" placeholder="发行价(元)"><input class=inp id="ipoSize" value="50" placeholder="募资规模(亿)"><input class=inp id="ipoDiv" value="30" placeholder="分红比例%"><button class="btn p" onclick="doIPO()">执行增发</button><div class="small" style="margin-top:8px">发行价与募资规模越高，稀释更敏感，自行平衡。</div></div>';return html;};
+VIEWS['fin.pl']=function(){var rev=0;DEPTS.forEach(function(d){rev+=revOf(d);});var cost=maint();return '<h2 class=sec>利润表</h2><div class="card">'+row('营业收入(月)',fmt(rev))+row('营业成本(月)',fmt(cost))+row('净利润',fmt(rev-cost),(rev-cost>=0?'<span class=up>盈利</span>':'<span class=down>亏损</span>'))+'</div>';};
+VIEWS['fin.bs']=function(){return '<h2 class=sec>资产负债</h2><div class="card">'+row('总资产',fmt(S.asset))+row('总负债',fmt(S.asset*0.45))+row('净资产',fmt(S.asset*0.55))+row('资产负债率','45%')+'</div>';};
+VIEWS['fin.ratio']=function(){var rev=0;DEPTS.forEach(function(d){rev+=revOf(d);});return '<h2 class=sec>财务指标</h2><div class="card">'+row('ROE',(rev/S.asset*12*100).toFixed(1)+'%')+row('毛利率','58%')+row('PE',(S.asset/Math.max(1,rev*12)).toFixed(1))+'</div>';};
+VIEWS['life.state']=function(){return '<h2 class=sec>状态行动</h2><div class="grid"><div class="card"><h3>主角状态</h3>'+row('年龄',S.age+'岁')+row('心情',S.mood,'<div class="bar" style="width:120px"><i style="width:'+S.mood+'%"></i></div>')+row('健康',S.health,'<div class="bar" style="width:120px"><i style="width:'+S.health+'%"></i></div>')+row('人脉',S.net)+'</div><div class="card"><h3>行动</h3><button class="btn" onclick="act(\'rest\')">休假(心情+)</button><br><br><button class="btn" onclick="act(\'net\')">社交(人脉+)</button><br><br><button class="btn" onclick="act(\'study\')">进修(能力+)</button></div></div>';};
+VIEWS['life.asset']=function(){var items=[['私人庄园',8000],['公务机',20000],['艺术品',3000],['红酒窖',1500]];return '<h2 class=sec>置业收藏</h2><div class="card">'+items.map(function(it){return row(it[0],'¥'+it[1]+'万','<button class=btn onclick="buyLux(\''+it[0]+'\','+it[1]+')">购买</button>');}).join('')+'<p class=small>奢侈品提升心情上限与人脉权重，收藏品抗通胀。</p></div>';};
+VIEWS['life.sched']=function(){var sd=S.sched||{work:50,social:20,study:15,rest:15};S.sched=sd;return '<h2 class=sec>日程自定义</h2><div class="card"><p class=small>安排主角每月时间占比，影响健康、人脉与决策力。</p>'+[['work','工作'],['social','社交'],['study','进修'],['rest','休息']].map(function(k){return '<div style="margin:8px 0"><span class=lbl>'+k[1]+' <b>'+sd[k[0]]+'</b></span><input type="range" min="0" max="100" value="'+sd[k[0]]+'" oninput="setSched(\''+k[0]+'\',this.value)"></div>';}).join('')+'</div>';};
+VIEWS['per.profile']=function(){return '<h2 class=sec>主角档案</h2><div class="card">'+row('姓名','董事长（你）')+row('年龄',S.age+'岁')+row('起始年份','1999 年')+row('资产净值',fmt(S.asset))+row('四维能力','领导'+(10+S.lead*5)+' / 战略'+(10+S.strat*5)+' / 风控'+(10+S.risk*5)+' / 人脉'+(10+S.netlv*5))+'</div>';};
+VIEWS['per.org']=function(){var html='<h2 class=sec>组织架构图</h2><div class="org">';html+='<div class="orgcard" style="border-color:var(--gold)"><div class="nm">董事长（你）</div><div class="badge">最高决策</div></div>';html+='<div class="orgcard"><div class="nm">核心高管层 C-Suite</div>';CSUITE.slice(1).forEach(function(c){var p=S.csuite[c.id];html+='<div class="row"><span>'+c.name+'：'+p.name+'</span><span class="badge">能力'+p.ability+' · 年薪'+p.salary+'万 · 忠诚'+p.loyalty+'</span></div>';});html+='</div>';html+='<div class="orgcard"><div class="nm">部门层（负责人 / 副手）</div>';DEPTS.forEach(function(d){var dp=S.depts[d.id];html+='<div class="row"><span>'+d.name+'</span><span class="badge">总监 '+dp.head.name+' / 副 '+dp.deputy.name+'</span><button class=btn onclick="openDept(\''+d.id+'\')">分布</button></div>';});html+='</div></div>';return html;};
+VIEWS['per.csuite']=function(){return '<h2 class=sec>高管层</h2>'+CSUITE.map(function(c){if(c.id==='chairman')return '<div class="card"><h3>'+c.name+'</h3><p class=small>'+c.role+'</p><p>玩家本人</p></div>';var p=S.csuite[c.id];return '<div class="card"><h3>'+c.name+' · '+p.name+'</h3>'+row('能力',p.ability)+row('年薪',p.salary+'万')+row('忠诚度',p.loyalty+'%')+'<div style="margin-top:8px"><button class="btn" onclick="raiseExec(\''+c.id+'\',1)">加薪</button> <button class="btn d" onclick="raiseExec(\''+c.id+'\',-1)">降薪</button> <button class="btn" onclick="studyExec(\''+c.id+'\')">送进修</button></div></div>';}).join('');};
+VIEWS['per.skill']=function(){var html='<h2 class=sec>管理层技能树 <span class=badge>技能点 '+S.skillPts+'</span></h2>';['lead','strat','risk','net'].forEach(function(k){var sk=SKILL[k],lv=(k==='net')?S.netlv:S[k];html+='<div class="card"><h3 style="color:'+sk.color+'">'+sk.name+'线</h3><div class="nodes">';sk.nodes.forEach(function(n,i){var on=lv>i,can=(lv===i&&S.skillPts>=n.c);html+='<div class="node'+(on?' on':can?' can':'')+'" title="'+n.e+'" onclick="upSkill(\''+k+'\','+i+')">'+n.n+'</div>';if(i<3)html+='<div class="conn'+(on?' on':'')+'"></div>';});html+='</div><div class="small" style="margin-top:6px">当前等级：'+lv+' 级。下一级效果：'+(lv<4?sk.nodes[lv].n+'（'+sk.nodes[lv].e+'）':'已满级')+'。点击可点亮。</div></div>';});return html;};
+VIEWS['per.talent_mkt']=function(){return '<h2 class=sec>实时人才市场</h2><div class="card"><p class=small>候选随时间自动轮换。点击查看详情、发 Offer 或任命负责人。</p><button class="btn" onclick="refreshTalent()">刷新人才市场</button></div><div class="grid">'+S.talent.map(function(p,i){return '<div class="card"><h3>'+p.name+' <span class="tag t-lv'+p.lv+'">'+['','初级','中级','高级','顶级'][p.lv]+'</span></h3><div class="small">'+p.age+'岁 · '+p.edu+' · '+p.specialty+'<br>能力 '+p.ability+' · '+p.personality+'<br>期望年薪 '+p.salary+'万</div><div style="margin-top:6px"><button class=btn onclick="openTalent('+i+')">详情</button> <button class="btn p" onclick="hire('+i+')">录用</button></div></div>';}).join('')+'</div>';};
+VIEWS['per.emp']=function(){return '<h2 class=sec>员工管理</h2><div class="card"><h3>在职员工（按部门）</h3>'+DEPTS.map(function(d){return '<div class="row"><span>'+d.name+'</span><span class="badge">负责人 '+S.depts[d.id].head.name+' · 编制 '+S.depts[d.id].hc+' 人</span></div>';}).join('')+'</div><div class="card"><p class=small>可对负责人提拔、加薪、解雇(N+1)；副手可接替负责人。</p>'+DEPTS.map(function(d){return '<div class="row"><span>'+d.name+' 负责人 '+S.depts[d.id].head.name+'</span><span><button class=btn onclick="promoteDeputy(\''+d.id+'\')">副手接替</button> <button class="btn d" onclick="fireHead(\''+d.id+'\')">解雇</button></span></div>';}).join('')+'</div>';};
+function openDept(id){var d=DEPTS.filter(function(x){return x.id===id;})[0],dp=S.depts[id];openModal('<h2>'+d.name+' 详情</h2>'+row('职能',d.pos)+row('月营收',fmt(revOf(d)))+row('等级','Lv.'+dp.lv)+row('编制',dp.hc+' 人')+row('士气',dp.morale+'%')+row('风险敞口',(metaBeta(id)*10).toFixed(0)+'%')+'<h3 style="margin-top:10px">负责人档案</h3>'+personCard(dp.head)+'<div style="margin-top:8px"><button class="btn" onclick="studyHead(\''+id+'\')">送进修</button> <button class="btn" onclick="raiseHead(\''+id+'\',1)">涨薪</button> <button class="btn d" onclick="raiseHead(\''+id+'\',-1)">降薪</button> <button class="btn p" onclick="closeModal()">关闭</button></div>');}
+function openCmp(i){var c=competitors()[i];openModal('<h2>'+c.nm+' 透视</h2>'+row('资产',fmt(c.asset))+row('涨跌',(c.up>0?'<span class=up>+':'<span class=down>')+(c.up*100).toFixed(1)+'%</span>')+row('负债率',c.lev+'%')+row('策略',c.strat)+row('估值',fmt(c.asset*1.3))+'<h3 style="margin-top:10px">核心高管</h3>'+personCard(c.head)+'<div style="margin-top:8px"><button class="btn p" onclick="poachCmp('+i+')">挖角高管</button></div>');}
+function openTalent(i){var p=S.talent[i];openModal('<h2>候选人 · '+p.name+'</h2>'+personCard(p)+row('期望年薪',p.salary+'万')+row('猎头费',Math.round(p.salary*0.3)+'万')+'<div style="margin-top:8px"><button class="btn p" onclick="hire('+i+');closeModal()">录用为员工</button> <button class="btn" onclick="appointHead('+i+');closeModal()">任命为部门负责人</button></div>');}
+function openSub(nm){openModal('<h2>'+nm+'</h2><p class=small>并表子公司，独立营收引擎，分散周期风险。</p>'+row('年营收',fmt(S.asset*0.04))+row('风险贡献','分散化')+'<button class="btn p" style="margin-top:8px" onclick="closeModal()">关闭</button>');}
+function togglePause(){S.paused=!S.paused;renderTop();}
+function upgradeDept(id){if(S.money<5e6)return toast('现金不足');S.money-=5e6;S.depts[id].lv++;S.depts[id].rev*=1.25;log(DEPTS.filter(function(d){return d.id===id;})[0].name+' 升级至 Lv.'+S.depts[id].lv);renderTab();}
+function hireDept(id){if(S.money<1e6)return toast('现金不足');S.money-=1e6;S.depts[id].hc+=5;S.depts[id].rev*=1.06;renderTab();}
+function fireDept(id){S.depts[id].hc=Math.max(5,S.depts[id].hc-5);S.depts[id].rev*=0.95;S.depts[id].morale=Math.max(30,S.depts[id].morale-6);renderTab();}
+function bonus(id){if(S.money<3e6)return toast('现金不足');S.money-=3e6;S.depts[id].morale=Math.min(98,S.depts[id].morale+10);log(DEPTS.filter(function(d){return d.id===id;})[0].name+' 发放奖金，士气提升');renderTab();}
+function setTilt(id,v){S.tilt[id]=parseInt(v);var el=event&&event.target;var lb=el&&el.parentNode?el.parentNode.querySelector('b'):null;if(lb)lb.textContent=v;}
+function upDeptSkill(id,l,i){var dp=S.depts[id];if(dp.skill[l]>i)return;var need=i+1;if(dp.lv<need)return toast('需部门等级Lv.'+need);if(S.skillPts<need)return toast('技能点不足');S.skillPts-=need;dp.skill[l]=i+1;log(DEPTS.filter(function(d){return d.id===id;})[0].name+' 技能线提升');renderTab();}
+function addWatch(){var nm=val('wnm');if(!nm)return toast('请输入标的名');S.watch.push({nm:nm,cur:100,tp:parseInt(val('wtp'))||30,sl:parseInt(val('wsl'))||-15});renderTab();}
+function delWatch(i){S.watch.splice(i,1);renderTab();}
+function makeAlly(){if(S.money<2e7)return toast('现金不足');S.money-=2e7;S.allies.push('联盟对手'+(S.allies.length+1));log('缔结战略联盟，全局效率+2%');renderTab();}
+function breakAlly(i){S.allies.splice(i,1);renderTab();}
+function buyResearch(){if(S.money<8e6)return toast('现金不足');S.money-=8e6;var o=document.getElementById('rsout');if(o)o.innerHTML=competitors().map(function(c){return '<div>'+c.nm+' 真实负债率 '+c.lev+'%，策略 '+c.strat+'</div>';}).join('');toast('研报已解锁');}
+function mktManage(){if(S.money<5e6)return toast('现金不足');S.money-=5e6;S.index=Math.round(S.index*1.02);log('市值管理见效，股价+2%');renderTop();}
+function borrow(n){S.money+=n*1e8;S.asset+=n*1e8;log('完成债权融资'+n+'亿');renderTop();}
+function repay(){if(S.money<1e8)return toast('现金不足');S.money-=1e8;S.asset-=1e8;renderTop();}
+function newSub(){if(S.asset<1e10)return toast('资产需达百亿');S.subCo.push('子公司'+(S.subCo.length+1));log('新设子公司并表');renderTab();}
+function doIPO(){var size=parseFloat(val('ipoSize'))||50;if(S.asset<3e10&&!S.milestones.ipo)toast('资产不足300亿，转为小额增发');S.money+=size*1e8;S.asset+=size*1e8*0.6;if(!S.milestones.ipo){S.milestones.ipo=1;log('<span class=up>IPO成功上市！</span> 募资'+size+'亿');}else{log('增发完成，募资'+size+'亿，分红比例'+val('ipoDiv')+'%');}renderTop();toast('操作完成');}
+function act(a){if(a==='rest')S.mood=Math.min(100,S.mood+8);if(a==='net')S.net+=2;if(a==='study'){if(S.money<2e6)return toast('现金不足');S.money-=2e6;S.skillPts+=1;}renderTab();}
+function buyLux(nm,price){if(S.money<price*1e4)return toast('现金不足');S.money-=price*1e4;S.mood=Math.min(100,S.mood+5);S.net+=1;toast('已购入'+nm);}
+function setSched(k,v){S.sched[k]=parseInt(v);var el=event&&event.target;var lb=el&&el.parentNode?el.parentNode.querySelector('b'):null;if(lb)lb.textContent=v;}
+function refreshTalent(){S.talent=[];for(var i=0;i<14;i++)S.talent.push(person());renderTab();}
+function hire(i){var p=S.talent[i];var fee=Math.round(p.salary*0.3)*1e4;if(S.money<fee)return toast('猎头费不足');S.money-=fee;var d=pick(DEPTS);S.depts[d.id].hc+=1;S.depts[d.id].rev*=1.005;S.staff.push(p);S.talent.splice(i,1);toast('已录用 '+p.name);renderTab();}
+function appointHead(i){var p=S.talent[i];var d=DEPTS.filter(function(x){return x.name===p.specialty;})[0]||pick(DEPTS);S.depts[d.id].head=p;p.loyalty=80;p.status='在职';S.staff.push(p);S.talent.splice(i,1);log(p.name+' 被任命为 '+d.name+' 负责人');toast(p.name+'→'+d.name+' 负责人');renderTab();}
+function poachCmp(i){if(S.money<5e7)return toast('现金不足');S.money-=5e7;S.skillPts+=2;toast('成功挖走核心高管，技能点+2');closeModal();}
+function studyHead(id){if(S.money<2e6)return toast('现金不足');S.money-=2e6;S.depts[id].head.ability=Math.min(99,S.depts[id].head.ability+3);log(DEPTS.filter(function(d){return d.id===id;})[0].name+' 负责人进修，能力+3');openDept(id);}
+function raiseHead(id,d){var h=S.depts[id].head;h.salary=Math.max(4,h.salary+d*3);h.loyalty=Math.max(10,Math.min(99,h.loyalty+d*8));toast('已'+(d>0?'涨薪':'降薪'));openDept(id);}
+function studyExec(id){if(S.money<3e6)return toast('现金不足');S.money-=3e6;S.csuite[id].ability=Math.min(99,S.csuite[id].ability+4);renderTab();}
+function raiseExec(id,d){var p=S.csuite[id];p.salary=Math.max(6,p.salary+d*4);p.loyalty=Math.max(10,Math.min(99,p.loyalty+d*8));renderTab();}
+function upSkill(k,i){var key=(k==='net')?'netlv':k;var sk=SKILL[k];if(S[key]>i)return;var n=sk.nodes[i];if(S.skillPts<n.c)return toast('技能点不足(需'+n.c+')');S.skillPts-=n.c;S[key]=i+1;log('技能点亮：'+sk.name+'线 '+n.n+'（'+n.e+'）');renderTab();}
+function promoteDeputy(id){var dp=S.depts[id];dp.head=dp.deputy;dp.deputy=person(2);dp.morale=Math.min(98,dp.morale+4);log(DEPTS.filter(function(d){return d.id===id;})[0].name+' 副手接替负责人');toast('副手已接替');renderTab();}
+function fireHead(id){var dp=S.depts[id];S.money-=dp.head.salary*1e4;if(dp.deputy){dp.head=dp.deputy;dp.deputy=person(2);}else{dp.head=person(3);}dp.morale=Math.max(30,dp.morale-8);toast('已解雇并补齐负责人');renderTab();}
+function saveGame(){try{localStorage.setItem(LS,JSON.stringify(S));}catch(e){}}
+function loadGame(){try{var d=localStorage.getItem(LS);if(d){var o=JSON.parse(d);var g=newGame();Object.keys(g).forEach(function(k){if(o[k]!==undefined)g[k]=o[k];});DEPTS.forEach(function(dd){if(!g.depts[dd.id]||!g.depts[dd.id].head)g.depts[dd.id]=newGame().depts[dd.id];});if(!g.csuite.ceo)g.csuite=newGame().csuite;return g;}}catch(e){return null;}return null;}
+function resetGame(){if(confirm('确定重开？当前进度将清除')){localStorage.removeItem(LS);S=newGame({});showScenario();}}
+var SCEN_PRESETS=[{name:'白手起家',year:1999,money:500000,asset:10000000,age:24,diff:'地狱',diffName:'白手起家'},{name:'标准开局',year:1999,money:30000000,asset:600000000,age:28,diff:'标准',diffName:'标准开局'},{name:'股改弄潮',year:2005,money:80000000,asset:1200000000,age:30,diff:'标准',diffName:'股改弄潮'},{name:'豪门继承',year:2008,money:300000000,asset:5000000000,age:26,diff:'简单',diffName:'豪门继承'}];function row2(l,v){return '<div class="row"><span class=lbl>'+l+'</span><span>'+v+'</span></div>';}function numI(id,v,mn,mx){return '<input id='+id+' type=number value='+v+' min='+mn+' max='+mx+' style="width:120px;padding:4px">';}function selI(id,arr,v){return '<select id='+id+' style="padding:4px">'+arr.map(function(x){return '<option'+(x===v?' selected':'')+'>'+x+'</option>';}).join('')+'</select>';}function gv(id){return document.getElementById(id).value;}function showScenario(){var cards=SCEN_PRESETS.map(function(p,i){return '<button class=btn style="width:100%;margin:6px 0;text-align:left" onclick="startScenario('+i+')"><b>'+p.name+'</b> · '+p.year+'年 资金'+fmt(p.money)+' · 年龄'+p.age+' · 难度'+p.diff+'</button>';}).join('');openModal('<h2 class=sec>选择开局剧本</h2><p class=small>选一个剧本快速开始，或自定义你的资本人生。也可随时点顶部「重开」换剧本。</p>'+cards+'<button class="btn" style="width:100%;margin-top:8px" onclick="showCustom()">自定义剧本</button>');}function startScenario(i){newStart(SCEN_PRESETS[i]);}function showCustom(){openModal('<h2 class=sec>自定义剧本</h2>'+row2('起始年份',selI('cYear',[1992,1996,1999,2005,2008,2015],1999))+row2('主角年龄',numI('cAge',28,18,60))+row2('初始资金(万元)',numI('cMoney',3000,50,200000))+row2('初始总资产(万元)',numI('cAsset',60000,1000,2000000))+row2('难度',selI('cDiff',['地狱','标准','简单'],'标准'))+'<button class="btn" style="width:100%;margin-top:10px" onclick="startCustom()">开始经营</button>');}function startCustom(){newStart({year:+gv('cYear'),age:+gv('cAge'),money:+gv('cMoney')*10000,asset:+gv('cAsset')*10000,diff:gv('cDiff'),diffName:'自定义'});}function newStart(p){try{localStorage.removeItem(LS);}catch(e){}S=newGame(p);saveGame();closeModal();renderNav();renderTop();go('dsk');toast('剧本已载入，开始经营');}
+
+var S=null;
+var _acc=0,_last=0,_loopOn=false,_saveOn=false;
+function loop(ts){if(!_last)_last=ts;var dt=ts-_last;_last=ts;if(dt>2000)dt=1000;_acc+=dt;var guard=0;while(_acc>=1000&&guard<24){_acc-=1000;tick();guard++;}requestAnimationFrame(loop);}
+function bootGame(){S=loadGame()||newGame({});renderNav();renderTop();go(curTab);if(!localStorage.getItem(LS)){showScenario();}if(!_loopOn){_loopOn=true;requestAnimationFrame(loop);}if(!_saveOn){_saveOn=true;setInterval(function(){try{if(S)saveGame();}catch(e){}},15000);}}
+document.getElementById('mask').addEventListener('click',function(e){if(e.target.id==='mask')closeModal();});
+
+/* ===================== 在线账号系统 (Supabase) ===================== */
+/* 接入方式见页面底部「接入与账号管理」面板；只需填写下面两项即可启用在线账号 */
+var SUPABASE_URL    = 'PASTE_SUPABASE_URL';     // 例: https://xxxxxxxx.supabase.co
+var SUPABASE_ANON_KEY = 'PASTE_SUPABASE_ANON_KEY'; // 例: eyJhbGciOi...
+
+/* Supabase 客户端（未填密钥或 SDK 未加载时自动降级为本地模式，游戏仍可离线运行） */
+var sb=null, _online=false;
+try{
+  if(window.supabase && window.supabase.createClient &&
+     SUPABASE_URL.indexOf('PASTE_')!==0 && SUPABASE_ANON_KEY.indexOf('PASTE_')!==0){
+    sb=window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    _online=true;
+  }
+}catch(e){ _online=false; }
+
+/* ---- 通用工具（两种模式共用） ---- */
+function esc(t){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function hashPwd(str){var h=5381;for(var i=0;i<str.length;i++){h=((h*33)^str.charCodeAt(i))>>>0;}var h2=52711;for(var j=str.length-1;j>=0;j--){h2=((h2*31)^str.charCodeAt(j))>>>0;}return (h.toString(16)+'_'+h2.toString(16));}
+function validUser(u){return /^[\u4e00-\u9fa5A-Za-z0-9_]{2,12}$/.test(u);}
+/* 把用户名映射为 Supabase Auth 需要的邮箱（Supabase 以 email 为唯一标识） */
+function emailFor(u){var safe=u.replace(/[^\w]/g,'').slice(0,20)||'user';var tag=hashPwd(u).slice(0,6);return safe+'_'+tag+'@capgame.app';}
+
+/* ---- 本地模式账号存储（在线不可用时的兜底） ---- */
+var ACC_LST='capG_acc_v1', ACC_CUR='capG_cur_acc', ACC_LAST='capG_last_user';
+function readAccounts(){try{return JSON.parse(localStorage.getItem(ACC_LST))||[];}catch(e){return [];}}
+function writeAccounts(a){try{localStorage.setItem(ACC_LST,JSON.stringify(a));}catch(e){}}
+function accExists(u){return readAccounts().some(function(x){return x.u===u;});}
+
+/* ---- 登录页 ---- */
+var _authMode='login', _authBusy=false;
+function setAuthMode(m){_authMode=m;renderAuth();}
+function authErr(msg){var e=document.getElementById('authErr');if(e)e.textContent=msg||'';}
+function togglePwd(el,id){var inp=document.getElementById(id);if(inp.type==='password'){inp.type='text';el.textContent='隐藏';}else{inp.type='password';el.textContent='显示';}}
+function modeBadge(){return _online
+  ?'<div style="text-align:center;font-size:11px;color:#5f7ba6;margin-bottom:10px">● 在线账号（云端）</div>'
+  :'<div style="text-align:center;font-size:11px;color:#c08a3e;margin-bottom:10px">○ 本地模式（未配置云后端，进度仅存本机）</div>';}
+
+function renderAuth(){
+  var box=document.getElementById('authBody'); if(!box)return;
+  var last=localStorage.getItem(ACC_LAST)||'';
+  var head=modeBadge();
+  if(_authMode==='login'){
+    var opts='';
+    if(!_online){
+      opts=readAccounts().map(function(x){return '<option value="'+esc(x.u)+'"'+(x.u===last?' selected':'')+'>'+esc(x.u)+(x.nick?'（'+esc(x.nick)+'）':'')+'</option>';}).join('');
+    }
+    box.innerHTML=head
+      +'<div class="authTabs"><button class="on">登录</button><button onclick="setAuthMode(\'register\')">注册</button></div>'
+      +(_online?'<div class="fld"><label>账号（邮箱或用户名）</label><input id="loginUser" placeholder="注册邮箱 / 用户名" value="'+esc(last)+'"></div>'
+        :('<div class="fld"><label>账号</label>'+(opts?'<select id="loginSel"><option value="">— 手动输入 —</option>'+opts+'</select>':'')+'</div>'
+          +'<div class="fld" id="loginUserBox" style="'+(opts?'display:none':'')+'"><input id="loginUser" placeholder="用户名" value="'+esc(last)+'"></div>'))
+      +'<div class="fld"><label>密码</label><div class="pwdRow"><input id="loginPwd" type="password" placeholder="请输入密码"><span class="eye" onclick="togglePwd(this,\'loginPwd\')">显示</span></div></div>'
+      +'<div class="rowLine"><label><input type="checkbox" id="rememberMe" '+(last?'checked':'')+'>记住我</label><span style="color:#6f88ac">游客可免注册体验</span></div>'
+      +'<div class="err" id="authErr"></div>'
+      +'<button class="authBtn primary" onclick="doLogin()">登 录</button>'
+      +'<button class="authBtn ghost" onclick="doGuest()">以游客身份进入</button>'
+      +adminLink();
+    if(!_online&&opts){var sel=document.getElementById('loginSel');sel.addEventListener('change',function(){document.getElementById('loginUserBox').style.display=sel.value?'none':'block';});}
+  }else{
+    box.innerHTML=head
+      +'<div class="authTabs"><button onclick="setAuthMode(\'login\')">登录</button><button class="on">注册</button></div>'
+      +'<div class="fld"><label>用户名</label><input id="regUser" placeholder="2-12位中文/英文/数字"></div>'
+      +'<div class="fld"><label>昵称（选填）</label><input id="regNick" placeholder="游戏内显示名"></div>'
+      +(_online?'':'')
+      +'<div class="fld"><label>密码</label><div class="pwdRow"><input id="regPwd" type="password" placeholder="6-20位"><span class="eye" onclick="togglePwd(this,\'regPwd\')">显示</span></div></div>'
+      +'<div class="pwdHint"><span id="hLen">长度6-20</span><span id="hMix">建议字母+数字</span></div>'
+      +'<div class="fld"><label>确认密码</label><div class="pwdRow"><input id="regPwd2" type="password" placeholder="再次输入密码"><span class="eye" onclick="togglePwd(this,\'regPwd2\')">显示</span></div></div>'
+      +'<div class="err" id="authErr"></div>'
+      +'<button class="authBtn primary" onclick="doRegister()">注 册 并 进 入</button>'
+      +'<button class="authBtn ghost" onclick="setAuthMode(\'login\')">已有账号，去登录</button>'
+      +adminLink();
+    var rp=document.getElementById('regPwd');if(rp)rp.addEventListener('input',function(){var v=rp.value;document.getElementById('hLen').className=(v.length>=6&&v.length<=20)?'ok':'';document.getElementById('hMix').className=(/[A-Za-z]/.test(v)&&/[0-9]/.test(v))?'ok':'';});
+  }
+}
+function adminLink(){
+  return '<div style="text-align:center;margin-top:14px"><a href="javascript:void(0)" onclick="showAdminStats()" style="color:#6f88ac;font-size:12px;text-decoration:none">管理 · 数据统计</a></div>';
+}
+
+/* ---- 注册 ---- */
+function doRegister(){
+  var u=(document.getElementById('regUser').value||'').trim();
+  var nick=(document.getElementById('regNick').value||'').trim();
+  var p=document.getElementById('regPwd').value||'';
+  var p2=document.getElementById('regPwd2').value||'';
+  if(!validUser(u))return authErr('用户名需为2-12位中文/英文/数字或下划线');
+  if(p.length<6||p.length>20)return authErr('密码长度需6-20位');
+  if(p!==p2)return authErr('两次输入的密码不一致');
+  if(_authBusy)return; _authBusy=true; authErr('处理中…');
+  if(_online){
+    sb.auth.signUp({email:emailFor(u),password:p,options:{data:{username:u,nickname:nick}}})
+      .then(function(res){
+        _authBusy=false;
+        if(res.error){return authErr('注册失败：'+res.error.message);}
+        var uid=res.data.user&&res.data.user.id;
+        if(uid){ sb.from('profiles').upsert({id:uid,username:u,nickname:nick}).then(function(){}); }
+        authErr('');
+        _authMode='login';renderAuth();
+        var tip=document.createElement('div');tip.style.cssText='color:#4fd07a;font-size:13px;text-align:center;margin-top:10px';
+        tip.textContent='注册成功，请使用该用户名登录';document.getElementById('authBody').appendChild(tip);
+        try{localStorage.setItem(ACC_LAST,u);}catch(e){}
+      });
+  }else{
+    if(accExists(u)){_authBusy=false;return authErr('该用户名已被注册');}
+    var a=readAccounts();a.push({u:u,p:hashPwd(p),nick:nick,ts:Date.now()});writeAccounts(a);
+    _authBusy=false;_authMode='login';renderAuth();authErr('');
+    try{localStorage.setItem(ACC_LAST,u);}catch(e){}
+    var tip2=document.createElement('div');tip2.style.cssText='color:#4fd07a;font-size:13px;text-align:center;margin-top:10px';tip2.textContent='注册成功，请使用该账号登录';
+    document.getElementById('authBody').appendChild(tip2);
+  }
+}
+
+/* ---- 登录 ---- */
+function doLogin(){
+  var u='';
+  if(_online){var li=document.getElementById('loginUser');if(li)u=(li.value||'').trim();}
+  else{var sel=document.getElementById('loginSel');if(sel&&sel.value){u=sel.value;}else{var li2=document.getElementById('loginUser');if(li2)u=(li2.value||'').trim();}}
+  var p=(document.getElementById('loginPwd').value)||'';
+  if(!u)return authErr('请输入或选择账号');
+  if(_authBusy)return; _authBusy=true; authErr('登录中…');
+  if(_online){
+    var email=u.indexOf('@')>0?u:emailFor(u);
+    sb.auth.signInWithPassword({email:email,password:p})
+      .then(function(res){
+        _authBusy=false;
+        if(res.error){return authErr('登录失败：'+res.error.message);}
+        var un=(res.data.user&&res.data.user.user_metadata&&res.data.user.user_metadata.username)||u;
+        try{if(document.getElementById('rememberMe')&&document.getElementById('rememberMe').checked)localStorage.setItem(ACC_LAST,un);else localStorage.removeItem(ACC_LAST);}catch(e){}
+        enterOnline(un);
+      });
+  }else{
+    var acc=readAccounts().filter(function(x){return x.u===u;})[0];
+    _authBusy=false;
+    if(!acc)return authErr('账号不存在，请先注册');
+    if(acc.p!==hashPwd(p))return authErr('密码错误');
+    try{if(document.getElementById('rememberMe')&&document.getElementById('rememberMe').checked)localStorage.setItem(ACC_LAST,u);else localStorage.removeItem(ACC_LAST);}catch(e){}
+    afterAuth(u,false);
+  }
+}
+
+function doGuest(){afterAuth('游客',true);}
+
+/* 在线登录成功：按 uid 拉取云端存档后进入 */
+function enterOnline(user){
+  var uid=null;
+  try{ sb.auth.getUser().then(function(r){uid=r&&r.data&&r.data.user&&r.data.user.id; _curUid=uid; LS='capG_online::'+uid;
+    sb.from('saves').select('data').eq('user_id',uid).maybeSingle().then(function(r2){
+      if(r2&&!r2.error&&r2.data&&r2.data.data){try{localStorage.setItem(LS,r2.data.data);}catch(e){}}
+      finishAuth(user,false);
+    });
+  });}catch(e){ LS='capG_online::'+user; finishAuth(user,false); }
+}
+var _curUid=null;
+
+function afterAuth(user,isGuest){
+  LS='capG_v10::'+(isGuest?'guest':('u_'+hashPwd(user)));
+  try{localStorage.setItem(ACC_CUR,JSON.stringify({u:user,guest:!!isGuest}));}catch(e){}
+  finishAuth(user,isGuest);
+}
+function finishAuth(user,isGuest){
+  var sc=document.getElementById('authScreen');if(sc)sc.style.display='none';
+  var app=document.getElementById('app');if(app)app.style.display='block';
+  bootGame();
+}
+
+/* ---- 云端存档同步：覆盖 saveGame，在线时额外 upsert ---- */
+var _origSave=saveGame;
+saveGame=function(){
+  try{_origSave();}catch(e){}
+  if(_online&&_curUid){try{var d=localStorage.getItem(LS)||'{}';sb.from('saves').upsert({user_id:_curUid,data:d,updated_at:new Date().toISOString()}).then(function(){});}catch(e){}}
+};
+
+/* ---- 管理：查看注册数（需 RLS 允许统计查询，见接入指南） ---- */
+function showAdminStats(){
+  if(!_online){alert('当前为本地模式，无法统计跨设备数据。\n请按页面底部「接入与账号管理」完成 Supabase 配置后再使用。\n（本地模式下的注册仅存于本机浏览器）');return;}
+  var ov=document.getElementById('adminOverlay');
+  if(ov&&ov.parentNode){ov.style.display='flex';ov.innerHTML='<div style="color:#9fb3d1;padding:30px;text-align:center">正在统计…</div>';}
+  else{ov=document.createElement('div');ov.id='adminOverlay';ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:99999;display:flex;align-items:center;justify-content:center;padding:16px';ov.onclick=function(e){if(e.target===ov){ov.style.display='none';}};document.body.appendChild(ov);ov.innerHTML='<div style="color:#9fb3d1;padding:30px;text-align:center">正在统计…</div>';}
+  var now=Date.now();
+  var since=new Date(now-60*864e5).toISOString();
+  var actStr=new Date(now-7*864e5).toISOString();
+  Promise.all([
+    sb.from('profiles').select('id,created_at').gte('created_at',since),
+    sb.from('saves').select('user_id,updated_at')
+  ]).then(function(res){
+    var pr=res[0],sv=res[1];
+    if(pr.error){ov.innerHTML='<div style="background:#16203a;color:#f88;padding:24px;border-radius:10px;border:1px solid #2a3a5a;max-width:520px">查询失败：'+pr.error.message+'<br><br>请确认 profiles 表 RLS 中「count all」策略已运行（见接入指南第4步）。</div>';return;}
+    var rows=pr.data||[];
+    var total=rows.length;
+    var todayStr=new Date().toISOString().slice(0,10);
+    var today=rows.filter(function(r){return (r.created_at||'').slice(0,10)===todayStr;}).length;
+    var byDay={};for(var i=13;i>=0;i--){var d=new Date(now-i*864e5).toISOString().slice(0,10);byDay[d]=0;}
+    rows.forEach(function(r){var d=(r.created_at||'').slice(0,10);if(byDay[d]!=null)byDay[d]++;});
+    var days=Object.keys(byDay).sort();var maxDay=1;days.forEach(function(d){if(byDay[d]>maxDay)maxDay=byDay[d];});
+    var trend='';days.forEach(function(d){var c=byDay[d];var h=Math.max(2,Math.round(c/maxDay*90));trend+='<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px"><span style="font-size:10px;color:#cfe0f5">'+c+'</span><div title="'+d+'：新增 '+c+' 人" style="width:72%;max-width:24px;background:linear-gradient(180deg,#f5d27a,#b8860b);height:'+h+'px;border-radius:3px 3px 0 0"></div><span style="font-size:9px;color:#6f88ac">'+d.slice(5)+'</span></div>';});
+    var active=0;
+    if(!sv.error&&sv.data){var seen={};sv.data.forEach(function(s){if((s.updated_at||'')>=actStr&&!seen[s.user_id]){seen[s.user_id]=1;active++;}});}
+    ov.innerHTML='<div style="background:#16203a;border:1px solid #2a3a5a;border-radius:12px;max-width:640px;width:100%;max-height:86vh;overflow:auto;padding:22px;color:#e6edf7;font-family:system-ui,-apple-system,sans-serif">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center"><h3 style="margin:0;color:#f5d27a;font-size:18px">账号管理 · 实时统计</h3><button id="adminClose" style="background:#2a3a5a;color:#e6edf7;border:0;border-radius:6px;padding:6px 14px;cursor:pointer;font-size:13px">关闭</button></div>'
+      +'<div style="display:flex;gap:12px;margin:16px 0;flex-wrap:wrap">'+adminKpi('累计注册',total,'#f5d27a')+adminKpi('今日新增',today,'#7be0a0')+adminKpi('近7日活跃',active,'#6fb8ff')+'</div>'
+      +'<div style="background:#111a30;border-radius:10px;padding:14px;margin-bottom:12px"><div style="font-size:13px;color:#9fb3d1;margin-bottom:12px">近 14 天注册趋势（按天新增）</div><div style="display:flex;align-items:flex-end;gap:4px;height:112px">'+trend+'</div></div>'
+      +'<p style="font-size:12px;color:#8aa0c0;line-height:1.7;margin:0">趋势基于最近 60 天的注册记录（profiles.created_at）按天绘制；活跃数为最近 7 天有存档更新的用户去重数（saves.updated_at）。<br>如需禁用 / 删除 / 重置密码等账号操作，请登录 Supabase 控制台 → Authentication → Users。<br>提示：本面板统计对所有登录访客可见（RLS 仅放开只读）。若要仅管理员可见，可在 Supabase 里把对应 select 策略的 using 改为判断特定邮箱。</p>'
+      +(sv.error?'<p style="font-size:12px;color:#f88;line-height:1.7;margin:8px 0 0">活跃统计不可用：'+sv.error.message+'（请确认已运行 saves 表的「stats read」只读策略，见接入指南第4步）。</p>':'')
+      +'</div>';
+    var cb=ov.querySelector('#adminClose');if(cb)cb.onclick=function(){ov.style.display='none';};
+  }).catch(function(e){ov.innerHTML='<div style="background:#16203a;color:#f88;padding:24px;border-radius:10px;border:1px solid #2a3a5a;max-width:520px">统计异常：'+e+'</div>';});
+}
+function adminKpi(label,val,color){return '<div style="flex:1;min-width:120px;background:#111a30;border:1px solid #223051;border-radius:10px;padding:14px;text-align:center"><div style="font-size:28px;font-weight:700;color:'+color+'">'+val+'</div><div style="font-size:12px;color:#9fb3d1;margin-top:4px">'+label+'</div></div>';}
+renderAuth();
+
+</script>
+
+<!-- ===================== 接入与账号管理指南（不影响游戏运行） ===================== -->
+<div id="setupGuide" style="position:fixed;right:14px;bottom:14px;z-index:9998;max-width:360px;font-family:sans-serif">
+  <details style="background:#101d31;color:#cdd9ee;border:1px solid #27406b;border-radius:12px;padding:10px 14px;box-shadow:0 10px 30px rgba(0,0,0,.4)">
+    <summary style="cursor:pointer;font-weight:700;color:#f5d27a;font-size:14px">接入与账号管理指南</summary>
+    <div style="font-size:12.5px;line-height:1.7;margin-top:10px">
+      <p style="margin:6px 0"><b style="color:#f5d27a">1. 建项目</b><br>打开 supabase.com 免费注册，New Project，记下项目名。</p>
+      <p style="margin:6px 0"><b style="color:#f5d27a">2. 取密钥</b><br>Project Settings → API，复制 <code>Project URL</code> 与 <code>anon public</code> key。</p>
+      <p style="margin:6px 0"><b style="color:#f5d27a">3. 填配置</b><br>用记事本打开本 HTML，把顶部两处 <code>PASTE_SUPABASE_URL</code> / <code>PASTE_SUPABASE_ANON_KEY</code> 替换为上面两项，保存。</p>
+      <p style="margin:6px 0"><b style="color:#f5d27a">4. 建表（SQL Editor 运行）</b></p>
+<pre style="background:#0a1424;border-radius:8px;padding:8px;overflow:auto;font-size:11px;color:#9fb6d8">-- 用户资料表
+create table profiles(id uuid primary key references auth.users on delete cascade, username text, nickname text, created_at timestamptz default now());
+alter table profiles enable row level security;
+create policy "own read" on profiles for select using (auth.uid()=id);
+create policy "own write" on profiles for insert with check (auth.uid()=id);
+create policy "own update" on profiles for update using (auth.uid()=id);
+-- 允许任何人统计注册总数（管理用）；如需限制可改为 service_role
+create policy "count all" on profiles for select using (true) with check (false);
+-- 云端存档表
+create table saves(user_id uuid primary key references auth.users on delete cascade, data text, updated_at timestamptz);
+alter table saves enable row level security;
+create policy "own save" on saves for all using (auth.uid()=user_id) with check (auth.uid()=user_id);
+-- 允许管理端读取存档更新时间，用于「近7日活跃」统计（仅放开只读）
+create policy "stats read" on saves for select using (true) with check (false);
+-- 关闭邮箱确认（让注册后即可登录；生产建议保留）
+-- 控制台 Authentication → Providers → Email → 关闭 Confirm email</pre>
+      <p style="margin:6px 0"><b style="color:#f5d27a">5. 查看注册数与活跃</b><br>① 游戏登录页点「管理 · 数据统计」，弹出面板实时显示：<b>累计注册 / 今日新增 / 近7日活跃</b> + <b>近14天注册趋势图</b>；（活跃数依赖第4步的 saves「stats read」策略，未加则活跃显示为 0）<br>② 或登录 Supabase 控制台 → Authentication → Users 查看完整列表、注册时间、禁用 / 删除 / 重置账号。</p>
+      <p style="margin:6px 0;color:#7f97bd">未填密钥时自动进入本地模式，游戏仍可双击离线玩，进度存本机浏览器。</p>
+    </div>
+  <p style="margin:10px 0"><b style="color:#f5d27a">6. 部署到 Cloudflare Pages（生成可点开的网址）</b><br>完成第1~5步后，把游戏做成一个玩家点链接就能注册游玩的网址：<br>① 把本文件重命名为 <code>index.html</code>（纯静态托管必须以 index.html 为入口）；<br>② 打开 <code>dash.cloudflare.com</code> 免费注册 → 左侧 <b>Workers &amp; Pages</b> → <b>Create</b> → 选 <b>Pages</b> → <b>Upload assets</b>；<br>③ 项目名称随意（如 capital-game），直接把<b>只装着 index.html 的文件夹</b>拖进去 → Deploy Site；<br>④ 几秒后得到 <code>https://你的项目名.pages.dev</code>，把网址发给任何人，对方打开即可注册游玩，你在「管理 · 数据统计」即可看到注册数增长。<br><span style="color:#9fb3d1">提示：Cloudflare Pages 免费额度足够个人小游戏；国内访问速度通常优于 Netlify；无需自己买服务器。</span></p></details>
+</div>
+</body>
+</html>
